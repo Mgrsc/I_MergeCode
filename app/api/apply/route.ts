@@ -15,7 +15,8 @@ export async function POST(request: NextRequest) {
     }
 
     if (enableRateLimit && maxRequests) {
-      const identifier = request.ip || 'anonymous';
+      const forwarded = request.headers.get('x-forwarded-for');
+      const identifier = forwarded ? forwarded.split(',')[0].trim() : request.headers.get('x-real-ip') || 'anonymous';
       const result = checkRateLimit(identifier, {
         maxRequests: parseInt(maxRequests),
         windowMs: 30 * 24 * 60 * 60 * 1000,
